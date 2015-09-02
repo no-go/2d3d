@@ -1,0 +1,16 @@
+
+
+./main 8 28 bilder/bild1.png bilder/bild2.png
+
+./main 48 58 bilder/C15.jpg bilder/C16.jpg
+
+./main 18 28 bilder/fenster1.jpg bilder/fenster2.jpg
+
+./main 28 45 bilder/radio1.jpg bilder/radio2.jpg
+
+./main 13 22 bilder/wald1.jpg bilder/wald2.jpg
+
+./main 5 25 bilder/bett1.jpg bilder/bett2.jpg
+
+./main 10 18 bilder/stift1.jpg bilder/stift2.jpg
+
