@@ -1,4 +1,5 @@
 #include <iostream>
+#include <string>
 #include <opencv/cv.h>
 #include <opencv/highgui.h>
 #include "tools3d.cpp"
@@ -36,46 +37,58 @@ int mini(int x, int y) {
 }
 
 int main(int argc, char *argv[]) {
-	if(argc<5) {
+	if(!(argc == 5 || argc == 3)) {
 		cout<<"usage: "<<argv[0]<<" von bis linkesBild rechtesBild"<<endl;
+		cout<<"usage: "<<argv[0]<<" 3Dmap Texture"<<endl;
 		return 1;
 	}
 	
-	int von = atoi(argv[1]);
-	int bis = atoi(argv[2]);
-	moveMax = bis-von;
-
-	eLeft = imread(argv[3], CV_LOAD_IMAGE_COLOR);
-	eRight = imread(argv[4], CV_LOAD_IMAGE_COLOR);
-	width = eLeft.cols;
-	height = eLeft.rows;
-	
 	Mat mixed;
-	Vec3b left,right;
 	
-	for(int dx=0; dx < (2*moveMax); dx++) {
-		mixed = Mat::zeros(height, width-2*moveMax, CV_32F);
+	if(argc == 5) {
+		int von = atoi(argv[1]);
+		int bis = atoi(argv[2]);
+		moveMax = bis-von;
+		
+		Vec3b left,right;
+		
+		eLeft = imread(argv[3], CV_LOAD_IMAGE_COLOR);
+		eRight = imread(argv[4], CV_LOAD_IMAGE_COLOR);
+		width = eLeft.cols;
+		height = eLeft.rows;
+		
+		for(int dx=0; dx < (2*moveMax); dx++) {
+			mixed = Mat::zeros(height, width-2*moveMax, CV_32F);
+			for(int y=0; y < height-block; y++) {
+				for(int x=0; x < (width-2*moveMax)-block; x++) {
+					xyDelta[x][y][dx] = fitt(x+dx, y, x+von, y);
+					mixed.at<float>(y, x) = xyDelta[x][y][dx];
+				}
+			}
+			show("Process", mixed, 10);
+			cout<<".";
+			cout.flush();
+		}
+		cout<<endl;
+		
+		mixed = Mat::zeros(height, width-2*moveMax, CV_8U);
 		for(int y=0; y < height-block; y++) {
 			for(int x=0; x < (width-2*moveMax)-block; x++) {
-				xyDelta[x][y][dx] = fitt(x+dx, y, x+von, y);
-				mixed.at<float>(y, x) = xyDelta[x][y][dx];
+				mixed.at<uchar>(y, x) = mini(x, y);
 			}
 		}
-		show("Process", mixed, 10);
-		cout<<".";
-		cout.flush();
+		string name3dmap = string(argv[3]) + string("MAP.png");
+		imwrite(name3dmap.c_str(), mixed);
+		show("Process", mixed, 2000);
+		destroyAllWindows();
+	} else {
+		mixed = imread(argv[1]);
+		eLeft = imread(argv[2], CV_LOAD_IMAGE_COLOR);
+		width = eLeft.cols;
+		height = eLeft.rows;
+		moveMax = (width - mixed.cols)/2;
 	}
-	cout<<endl;
 	
-	mixed = Mat::zeros(height, width-2*moveMax, CV_8U);
-	for(int y=0; y < height-block; y++) {
-		for(int x=0; x < (width-2*moveMax)-block; x++) {
-			mixed.at<uchar>(y, x) = mini(x, y);
-		}
-	}
-	show("Process", mixed, 0);
-	destroyAllWindows();
-
 	float fact = 1;
 	int fo=5;
 	
